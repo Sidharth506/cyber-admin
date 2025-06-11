@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Panel - Scam Control</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-gray-100 to-gray-200 min-h-screen p-8">
+  <div class="max-w-5xl mx-auto">
+    <h1 class="text-4xl font-bold mb-10 text-center text-red-600 flex items-center justify-center gap-2">
+      <span>🛡️</span> Admin Control Panel
+    </h1>
+
+    <!-- Admin Menu Cards -->
+    <div id="mainMenu" class="grid md:grid-cols-3 sm:grid-cols-1 gap-6">
+      <div class="bg-white rounded-xl shadow-md p-6 text-center hover:shadow-xl transition">
+        <h2 class="text-xl font-semibold text-blue-600 mb-4">Quiz Settings</h2>
+        <p class="text-gray-600 mb-4">Configure quiz time limits, difficulty level, and user access.</p>
+        <button onclick="openTab('settings')" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+          ⚙️ Manage Settings
+        </button>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-md p-6 text-center hover:shadow-xl transition">
+        <h2 class="text-xl font-semibold text-green-600 mb-4">Feedback Reports</h2>
+        <p class="text-gray-600 mb-4">View, delete or manage scam reports submitted by users.</p>
+        <button onclick="openTab('feedback')" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700">
+          📝 View Feedback
+        </button>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-md p-6 text-center hover:shadow-xl transition">
+        <h2 class="text-xl font-semibold text-purple-600 mb-4">Quiz Participants</h2>
+        <p class="text-gray-600 mb-4">Track participants, scores, percentages, and progress.</p>
+        <button onclick="openTab('participants')" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700">
+          👥 View Participants
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs (Content will be populated after load) -->
+  <div id="settingsTab" class="hidden"></div>
+  <div id="feedbackTab" class="hidden"></div>
+  <div id="participantsTab" class="hidden"></div>
+
+  <script defer>
+
+    // All the JS logic from previous working script
+    // Simply insert full working script inside window.onload here
+
+    window.onload = function () {
+     
+
+      // Keep your full script here as used in the working version
+      // Including openTab, backToMenu, saveQuizSettings, renderParticipants, renderTable etc
+ document.getElementById("settingsTab").innerHTML = `
+        <div class="bg-white rounded-xl shadow p-6 max-w-xl mx-auto">
+          <h2 class="text-xl font-bold mb-4 text-red-500">⚙️ Quiz Settings</h2>
+          <div class="space-y-4">
+            <div>
+              <label class="block mb-1 font-semibold">Set Time Limit (minutes):</label>
+              <input type="number" id="adminQuizTime" class="w-full p-2 border rounded" />
+            </div>
+            <div>
+              <label class="block mb-1 font-semibold">Difficulty:</label>
+              <select id="adminQuizDifficulty" class="w-full p-2 border rounded">
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard">Hard</option>
+              </select>
+            </div>
+            <div>
+              <label class="flex items-center space-x-2">
+                <input type="checkbox" id="disableUserDifficulty" />
+                <span class="text-sm">Disable difficulty selection</span>
+              </label>
+            </div>
+            <button onclick="saveQuizSettings()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Save</button>
+            <p id="saveMsg" class="text-green-600 mt-2 hidden">✅ Settings saved</p>
+            <div class="mt-4 text-center">
+              <button onclick="backToMenu()" class="bg-gray-500 text-white px-4 py-2 rounded">⬅ Back</button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      document.getElementById("feedbackTab").innerHTML = `
+        <div class="flex justify-center mb-4">
+          <button onclick="clearAllFeedback()" class="bg-red-500 text-white px-6 py-2 rounded shadow hover:bg-red-600">🗑️ Clear All</button>
+        </div>
+        <div class="overflow-x-auto bg-white rounded-lg shadow p-4 max-w-6xl mx-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-200 text-gray-700">
+              <tr>
+                <th class="px-4 py-2">Name</th>
+                <th class="px-4 py-2">Email</th>
+                <th class="px-4 py-2">Issue</th>
+                <th class="px-4 py-2">Details</th>
+                <th class="px-4 py-2">Time</th>
+                <th class="px-4 py-2">Action</th>
+              </tr>
+            </thead>
+            <tbody id="feedbackTable"></tbody>
+          </table>
+          <div class="mt-4 text-center">
+            <button onclick="backToMenu()" class="bg-gray-500 text-white px-4 py-2 rounded">⬅ Back</button>
+          </div>
+        </div>
+      `;
+
+      document.getElementById("participantsTab").innerHTML = `
+        <div class="overflow-x-auto bg-white rounded-lg shadow p-6 max-w-7xl mx-auto">
+          <h2 class="text-xl font-bold mb-4 text-purple-600">📊 Participants</h2>
+          <div class="flex justify-end mb-4">
+  <button onclick="clearAllParticipants()" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+    🗑️ Delete All Participants data
+  </button>
+</div>
+
+          <p><strong>Total:</strong> <span id="totalParticipants">0</span></p>
+          <p><strong>Avg Score:</strong> <span id="averageScore">0</span> / 10</p>
+          <p><strong>Avg %:</strong> <span id="averagePercent">0%</span></p>
+          <table class="min-w-full divide-y divide-gray-200 mt-4 text-sm">
+            <thead class="bg-gray-200 text-gray-700">
+              <tr>
+                <th class="px-4 py-2">Name</th>
+                <th class="px-4 py-2">Score</th>
+                <th class="px-4 py-2">%</th>
+                <th class="px-4 py-2">Difficulty</th>
+                <th class="px-4 py-2">Language</th>
+                <th class="px-4 py-2">Time Taken</th>
+                <th class="px-4 py-2">Submitted</th>
+              </tr>
+            </thead>
+            <tbody id="participantTable"></tbody>
+          </table>
+          <div class="mt-4 text-center">
+            <button onclick="backToMenu()" class="bg-gray-500 text-white px-4 py-2 rounded">⬅ Back</button>
+          </div>
+        </div>
+      `;
+
+      // Tab logic
+      window.openTab = function(tab) {
+        document.getElementById("mainMenu").classList.add("hidden");
+        document.getElementById("settingsTab").style.display = tab === "settings" ? "block" : "none";
+        document.getElementById("feedbackTab").style.display = tab === "feedback" ? "block" : "none";
+        document.getElementById("participantsTab").style.display = tab === "participants" ? "block" : "none";
+      };
+
+      window.backToMenu = function() {
+        document.getElementById("mainMenu").classList.remove("hidden");
+        document.getElementById("settingsTab").style.display = "none";
+        document.getElementById("feedbackTab").style.display = "none";
+        document.getElementById("participantsTab").style.display = "none";
+      };
+
+      window.saveQuizSettings = function () {
+        const settings = {
+          timeInSeconds: parseInt(document.getElementById("adminQuizTime").value || 0) * 60,
+          difficulty: document.getElementById("adminQuizDifficulty").value,
+          disableUserSelect: document.getElementById("disableUserDifficulty").checked
+        };
+        localStorage.setItem("quizAdminSettings", JSON.stringify(settings));
+        alert("✅ Settings applied.");
+        
+        document.getElementById("saveMsg").classList.remove("hidden");
+        setTimeout(() => document.getElementById("saveMsg").classList.add("hidden"), 3000);
+      };
+
+      window.clearAllFeedback = function () {
+        if (confirm("Clear all feedback?")) {
+          localStorage.removeItem("scamFeedbacks");
+          renderFeedback();
+        }
+      };
+
+      function renderFeedback() {
+        const feedbacks = JSON.parse(localStorage.getItem("scamFeedbacks")) || [];
+        const table = document.getElementById("feedbackTable");
+        table.innerHTML = "";
+        if (!feedbacks.length) {
+          table.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-gray-500">No feedback found.</td></tr>';
+          return;
+        }
+        feedbacks.forEach((f, i) => {
+          table.innerHTML += `
+            <tr>
+              <td class="px-4 py-2">${f.name}</td>
+              <td class="px-4 py-2">${f.email}</td>
+              <td class="px-4 py-2">${f.issue}</td>
+              <td class="px-4 py-2">${f.details}</td>
+              <td class="px-4 py-2 text-sm">${f.time}</td>
+              <td class="px-4 py-2"><button onclick="deleteFeedback(${i})" class="text-red-500 hover:underline">Delete</button></td>
+            </tr>
+          `;
+        });
+      }
+
+      window.deleteFeedback = function (index) {
+        const feedbacks = JSON.parse(localStorage.getItem("scamFeedbacks")) || [];
+        feedbacks.splice(index, 1);
+        localStorage.setItem("scamFeedbacks", JSON.stringify(feedbacks));
+        renderFeedback();
+      };
+      window.clearAllParticipants = function () {
+  if (confirm("Are you sure you want to delete all participant data?")) {
+    localStorage.removeItem("quizParticipants");
+    renderParticipants(); // Refresh table after deletion
+  }
+};
+
+
+      function renderParticipants() {
+        const data = JSON.parse(localStorage.getItem("quizParticipants")) || [];
+        const table = document.getElementById("participantTable");
+        const totalSpan = document.getElementById("totalParticipants");
+        const avgSpan = document.getElementById("averageScore");
+        const percentSpan = document.getElementById("averagePercent");
+
+        table.innerHTML = "";
+        if (!data.length) {
+          table.innerHTML = '<tr><td colspan="7" class="text-center text-gray-500 py-4">No participants yet.</td></tr>';
+          totalSpan.textContent = avgSpan.textContent = percentSpan.textContent = "0";
+          return;
+        }
+
+        let total = 0;
+        data.forEach(p => {
+          const percent = ((p.score / 10) * 100).toFixed(1);
+          table.innerHTML += `
+            <tr>
+              <td class="px-4 py-2">${p.name}</td>
+              <td class="px-4 py-2">${p.score} / 10</td>
+              <td class="px-4 py-2">${percent}%</td>
+              <td class="px-4 py-2">${p.difficulty}</td>
+              <td class="px-4 py-2">${p.language}</td>
+              <td class="px-4 py-2">${p.timeTaken}</td>
+              <td class="px-4 py-2 text-sm text-gray-500">${p.time}</td>
+            </tr>
+          `;
+          total += p.score;
+        });
+
+        totalSpan.textContent = data.length;
+        avgSpan.textContent = (total / data.length).toFixed(2);
+        percentSpan.textContent = ((total / (data.length * 10)) * 100).toFixed(1) + "%";
+      }
+
+      renderParticipants();
+      renderFeedback();
+    };
+  </script>
+</body>
+</html>
